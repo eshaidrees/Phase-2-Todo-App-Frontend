@@ -1,13 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
+  reactStrictMode: true,
   experimental: {
     serverActions: true,
   },
-  // Prevents SSR and hydration issues
-  reactStrictMode: true,
-  swcMinify: true,
 };
 
 export default nextConfig;
