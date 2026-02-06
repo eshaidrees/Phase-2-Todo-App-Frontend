@@ -3,40 +3,34 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { authUtils } from '@/src/lib/auth';
+import { useAuth } from '@/src/contexts/AuthContext';
 
 const Navbar = () => {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated, loading, logout } = useAuth();
 
   useEffect(() => {
     // Mark component as mounted to prevent SSR/client mismatch
     setIsMounted(true);
-    // Check auth status after mounting to ensure consistent state
-    setIsAuthenticated(authUtils.isAuthenticated());
-
-    // Listen for auth changes
-    const handleStorageChange = () => {
-      setIsAuthenticated(authUtils.isAuthenticated());
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
   }, []);
 
   const handleLogout = () => {
-    authUtils.removeToken();
-    setIsAuthenticated(false);
+    logout();
+    // Clear any stored chat data
+    if (typeof window !== 'undefined') {
+      const userId = localStorage.getItem('user_id');
+      if (userId) {
+        localStorage.removeItem(`chat-conversation-${userId}`);
+        localStorage.removeItem(`chat-messages-${localStorage.getItem(`chat-conversation-${userId}`)}`);
+      }
+    }
     router.push('/login');
   };
 
-  // Show nothing during hydration to prevent mismatches
-  if (!isMounted) {
+  // Show loading state while checking auth status or during hydration to prevent mismatches
+  if (!isMounted || loading) {
     return (
       <nav className="bg-gray-900/80 backdrop-blur-md text-white p-4 sticky top-0 z-50 border-b border-gray-800">
         <div className="container mx-auto flex justify-between items-center">
@@ -95,6 +89,19 @@ const Navbar = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
                     Dashboard
+                  </span>
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
+                </Link>
+
+                <Link
+                  href="/chat"
+                  className="hover:text-blue-400 transition-all duration-300 transform hover:scale-105 relative group px-3 py-2 rounded-lg hover:bg-gray-800/50"
+                >
+                  <span className="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    Chat
                   </span>
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
                 </Link>
@@ -172,6 +179,17 @@ const Navbar = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                   Dashboard
+                </Link>
+
+                <Link
+                  href="/chat"
+                  className="text-2xl text-white hover:text-blue-400 transition-all duration-300 transform hover:scale-110 flex items-center px-6 py-4 bg-gray-800/50 rounded-xl w-4/5 text-center"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                  Chat
                 </Link>
 
                 <button

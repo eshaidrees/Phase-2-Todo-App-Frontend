@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { authAPI } from '@/src/lib/api';
 import { authUtils } from '@/src/lib/auth';
+import { useAuth } from '@/src/contexts/AuthContext';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
@@ -14,6 +15,7 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { login } = useAuth();
 
   useEffect(() => {
     // Redirect to dashboard if already logged in
@@ -38,7 +40,7 @@ export default function SignupPage() {
       const response = await authAPI.register(email, password, name);
 
       if (response.access_token) {
-        authUtils.setToken(response.access_token);
+        login(response.access_token);
 
         router.push('/dashboard');
       }

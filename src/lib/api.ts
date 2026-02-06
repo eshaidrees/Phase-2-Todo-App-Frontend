@@ -1,6 +1,6 @@
 import { Task, TaskCreate, TaskUpdate } from '@/src/types/task';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:7860';
 
 // Helper function to get JWT token from localStorage
 const getAuthToken = (): string | null => {
